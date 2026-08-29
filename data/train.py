@@ -5,6 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_recall_curve
 import numpy as np
+import joblib 
 
 pd_train = pd.read_csv('data/creditcard.csv')
 
@@ -43,7 +44,10 @@ fraud_probs = model.predict_proba(X_test)[:, 1]
 # from the default 0.5 to ~0.997 traded some recall (0.96 -> 0.84) for a
 # big precision gain (0.06 -> 0.67), cutting false alarms from ~1849 to ~51
 fraud_probs_2 = fraud_probs >= 0.997
-print(classification_report(Y_test, fraud_probs_2))
+
+joblib.dump(model, 'models/model.pkl')
+joblib.dump(time_Scaler, 'models/time_Scaler.pkl')
+joblib.dump(amount_Scaler, 'models/amount_Scaler.pkl')
 
 
 
