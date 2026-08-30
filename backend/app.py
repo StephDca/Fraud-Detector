@@ -21,7 +21,8 @@ def transactionData():
     print(df)
     print(data)
     print(prediction)
-    return 'received'
+    return jsonify({'fraud': bool(final_prediction)
+                    , 'probability': float(prediction[0])})
 
 if __name__ == '__main__':
     app.run(debug=True)
