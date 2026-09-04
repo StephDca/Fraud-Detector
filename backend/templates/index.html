@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fraud Detector — Review Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap">
+<link rel="stylesheet" href="../static/design-system.css">
+<link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+<div class="nav">
+  <span class="nav-brand">FRAUD DETECTOR <span class="nav-sub">REVIEW CONSOLE</span></span>
+  <span class="seg">
+    <label class="seg-opt"><input type="radio" name="tab" value="review" checked>Review queue</label>
+    <label class="seg-opt"><input type="radio" name="tab" value="model">Model</label>
+  </span>
+  <span class="lbl nav-threshold">Threshold <span data-threshold></span></span>
+  <span class="avatar">SD</span>
+</div>
+
+<!-- Review queue + case detail -->
+<div class="layout" data-panel="review">
+  <aside class="queue">
+    <div class="queue-head">
+      <h4>Flagged transactions</h4>
+      <p class="queue-sub"><span data-open-count></span> · highest probability first</p>
+    </div>
+    <div data-queue></div>
+    <p class="queue-foot">Flagged when probability &ge; <span data-threshold></span> (model cutoff from train.py).</p>
+  </aside>
+
+  <main class="case">
+    <div class="case-head">
+      <h2 class="num" data-case-id></h2>
+      <span data-case-tag></span>
+      <span class="lbl case-status" data-case-status></span>
+    </div>
+
+    <div class="blueprint hero" data-hero>
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="lbl hero-lbl">Fraud probability</div>
+      <div class="hero-row">
+        <span class="num hero-prob" data-prob></span>
+        <span class="hero-band">
+          <span class="hero-band-label" data-band></span>
+          <span class="hero-band-note" data-band-note></span>
+        </span>
+      </div>
+      <div class="meter">
+        <span class="meter-fill" data-meter></span>
+        <span class="meter-mark"></span>
+      </div>
+      <div class="meter-scale"><span>99.00%</span><span>cutoff <span data-threshold></span></span><span>100%</span></div>
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <div class="lbl">Model verdict</div>
+        <div class="fact-value" data-verdict></div>
+        <div class="fact-note">field: fraud</div>
+      </div>
+      <div class="fact">
+        <div class="lbl">Amount</div>
+        <div class="fact-value num" data-amount></div>
+        <div class="fact-note">scaled before prediction</div>
+      </div>
+      <div class="fact">
+        <div class="lbl">Time</div>
+        <div class="fact-value num" data-clock></div>
+        <div class="fact-note num" data-elapsed></div>
+      </div>
+    </div>
+
+    <div class="decision-zone">
+      <!-- pending state -->
+      <div data-pending>
+        <div class="lbl decision-lbl">Your decision</div>
+        <div class="decision-actions">
+          <button class="btn btn-secondary" type="button" data-act="approve">Approve</button>
+          <button class="btn btn-primary" type="button" data-act="deny">Deny</button>
+          <button class="btn btn-secondary" type="button" data-act="flag">Flag</button>
+        </div>
+        <div class="decision-help">
+          <span>Approve — legitimate, release the payment</span>
+          <span>Deny — confirmed fraud, block it</span>
+          <span>Flag — send to investigations</span>
+        </div>
+        <div class="blueprint note-box" data-note-box hidden>
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="field">
+            <label for="note">Why are you flagging this? A note is required before it goes to investigations.</label>
+            <textarea class="input" id="note" data-note placeholder="e.g. card also used at two other flagged merchants this morning"></textarea>
+          </div>
+          <div class="note-actions">
+            <button class="btn btn-secondary" type="button" data-act="cancel-flag">Cancel</button>
+            <button class="btn btn-primary" type="button" data-act="submit-flag" disabled>Flag for investigation</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- decided state -->
+      <div class="blueprint decided" data-decided hidden>
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <span>
+          <span class="lbl">Decision recorded</span>
+          <span class="decided-label" data-decision-label></span>
+          <span class="decided-note" data-decision-note></span>
+        </span>
+        <button class="btn btn-secondary decided-undo" type="button" data-act="undo">Undo</button>
+        <button class="btn btn-primary" type="button" data-act="next">Next flagged &rarr;</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Model performance -->
+<main class="model" data-panel="model" hidden>
+  <h2>Model performance</h2>
+  <p class="model-intro">Logistic regression on the credit-card dataset, class-weighted for the 0.17% fraud rate. The cutoff was moved off the default 0.5 using the precision–recall curve.</p>
+
+  <div class="metrics">
+    <div class="blueprint metric"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="lbl">Cutoff</div><div class="metric-value num">99.70%</div><div class="metric-note">was 50% by default</div></div>
+    <div class="blueprint metric"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="lbl">Precision</div><div class="metric-value num">0.67</div><div class="metric-note">from 0.06</div></div>
+    <div class="blueprint metric"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="lbl">Recall</div><div class="metric-value num">0.84</div><div class="metric-note">from 0.96</div></div>
+    <div class="blueprint metric metric-solid"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="lbl">False alarms</div><div class="metric-value num">51</div><div class="metric-note">from 1,849</div></div>
+  </div>
+
+  <div class="model-cols">
+    <div>
+      <div class="lbl model-col-lbl">What the cutoff change did to this queue</div>
+      <table class="table">
+        <thead><tr><th>Cutoff</th><th class="ta-r">Flags / test set</th><th class="ta-r">Precision</th><th class="ta-r">Recall</th></tr></thead>
+        <tbody>
+          <tr><td class="num">50.00%</td><td class="num ta-r">1,967</td><td class="num ta-r">0.06</td><td class="num ta-r">0.96</td></tr>
+          <tr class="row-active"><td class="num">99.70%</td><td class="num ta-r">154</td><td class="num ta-r">0.67</td><td class="num ta-r">0.84</td></tr>
+        </tbody>
+      </table>
+      <p class="model-note">At 50% a reviewer would open roughly 2,000 cases to find the same fraud. At 99.70% the queue is small enough for one person a shift, and about two in three flags are real.</p>
+    </div>
+    <div>
+      <div class="lbl model-col-lbl">Features the score is built from</div>
+      <div class="tags">
+        <span class="tag tag-outline">Time</span><span class="tag tag-outline">Amount</span>
+        <span class="tag tag-neutral">V1</span><span class="tag tag-neutral">V2</span><span class="tag tag-neutral">V3</span><span class="tag tag-neutral">V4</span><span class="tag tag-neutral">V5</span><span class="tag tag-neutral">V6</span><span class="tag tag-neutral">V7</span><span class="tag tag-neutral">V8</span><span class="tag tag-neutral">…</span><span class="tag tag-neutral">V28</span>
+      </div>
+      <p class="model-note">Time and Amount are standard-scaled before prediction; V1–V28 are PCA components, so there is no human-readable reason to show the reviewer yet. That is why the case view stays on the four facts the reviewer can act on.</p>
+    </div>
+  </div>
+</main>
+
+<script src="../static/app.js"></script>
+</body>
+</html>
