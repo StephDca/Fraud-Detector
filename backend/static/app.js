@@ -1,7 +1,4 @@
-/* Fraud reviewer console — behaviour.
-   Replace TXNS with a fetch() of your /predict endpoint; each item needs
-   { id, t, clock, amount, p } where p is the model's probability and
-   t is the raw Time feature in seconds. */
+
 
 const THRESHOLD = 0.997; // cutoff from data/train.py
 
@@ -160,3 +157,16 @@ $$('input[name="tab"]').forEach((radio) => {
 });
 
 render();
+
+async function loadTransactions(){
+  const response = await fetch('/static/sample_transactions.json');
+  const data = await response.json();
+  const res = await fetch('/predict', {method: 'POST',
+    headers: {'Content-Type': 'application/json' },
+    body: JSON.stringify(data[0])
+  });
+  const predictionResult = await res.json()
+  console.log(predictionResult);
+}
+
+loadTransactions();

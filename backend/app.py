@@ -1,5 +1,5 @@
 import joblib
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import pandas as pd
 
 app = Flask(__name__)
@@ -8,6 +8,8 @@ app = Flask(__name__)
 model = joblib.load('models/model.pkl')
 amount_Scaler = joblib.load('models/amount_Scaler.pkl')
 time_Scaler = joblib.load('models/time_Scaler.pkl')
+
+
 
 
 @app.route('/predict', methods=['POST'])
@@ -23,6 +25,10 @@ def transactionData():
     print(prediction)
     return jsonify({'fraud': bool(final_prediction)
                     , 'probability': float(prediction[0])})
+
+@app.route('/')
+def dashboard():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
