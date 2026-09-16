@@ -161,12 +161,15 @@ render();
 async function loadTransactions(){
   const response = await fetch('/static/sample_transactions.json');
   const data = await response.json();
-  const res = await fetch('/predict', {method: 'POST',
-    headers: {'Content-Type': 'application/json' },
-    body: JSON.stringify(data[0])
-  });
-  const predictionResult = await res.json()
-  console.log(predictionResult);
+  const prediction = await Promise.all(data.map(async function scoreTransaction(transaction) {
+      const result = await fetch('/predict', {method: 'POST',
+      headers: {'Content-Type': 'application/json' },
+      body: JSON.stringify(transaction)
+      });
+      const predictionResult = await result.json();
+      return predictionResult; 
+  }))
+  console.log(prediction);
 }
 
 loadTransactions();
