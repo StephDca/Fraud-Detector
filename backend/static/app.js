@@ -2,7 +2,7 @@
 
 const THRESHOLD = 0.997; // cutoff from data/train.py
 
-const TXNS = [
+let TXNS = [
   { id: 'TXN-149382', t: 149382, clock: '01:29:42', amount: 1298.44, p: 0.9998 },
   { id: 'TXN-141156', t: 141156, clock: '23:12:36', amount: 412.90,  p: 0.9993 },
   { id: 'TXN-138904', t: 138904, clock: '22:35:04', amount: 89.99,   p: 0.9987 },
@@ -22,6 +22,21 @@ const money = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2,
 const flagged = (p) => p >= THRESHOLD;
 // the interesting range is 99–100%, so the meter zooms in on it
 const meterPct = (p) => Math.max(0, Math.min(100, ((p - 0.99) / 0.01) * 100));
+
+
+const timeFormat = (t) => {
+  const secondsIntoDay = t % (24 * 60 * 60);
+  const hours = Math.floor(secondsIntoDay / 3600);
+  const leftoversecs = secondsIntoDay % 3600;
+  const intoMinutes = Math.floor(leftoversecs / 60);
+  const intoseconds = leftoversecs % 60;
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedSeconds = intoseconds.toString().padStart(2, '0');
+  const formattedMinutes = intoMinutes.toString().padStart(2, '0');
+  const formattedTime =  formattedHours + ":" + formattedMinutes +
+  ":" + formattedSeconds;
+  return formattedTime;
+}
 
 const state = { selected: 0, decisions: {}, noteOpen: false };
 
@@ -167,9 +182,15 @@ async function loadTransactions(){
       body: JSON.stringify(transaction)
       });
       const predictionResult = await result.json();
-      return predictionResult; 
+      const mergeResult = {...transaction, ...predictionResult}
+      return mergeResult; 
   }))
-  console.log(prediction);
+  const fraudPredictions = prediction.filter((item) => flagged(item.probability));
+  const Reshapedtransactions = fraudPredictions.map((item) => ({t: item.Time, 
+    amount: item.Amount, id: 'TXN-' + item.Time, p: item.probability, clock: timeFormat(item.Time)
+   }))
+   TXNS = Reshapedtransactions;
+   render();
 }
 
 loadTransactions();
